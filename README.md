@@ -39,5 +39,5 @@
     npx vite
     ```
 
-3. Localに表示されているURLにアクセス
+3. Localに表示されているURLにアクセス  
     ![alt text](image1.png)
