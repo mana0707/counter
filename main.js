@@ -6,10 +6,10 @@ function createCounterElement(counterId) {
     let name = document.getElementById('counter name').value;
     document.getElementById('counter name').value = '';
 
-    var counterContainer = document.createElement('div');
-    counterContainer.className = 'counter'; counterContainer.id = `counter-${counterId}`;
-    counterContainer.innerHTML = `<p>${name}カウント: <span id='counterValue-${counterId}'>0</span></p><button onclick='incrementCounter(${counterId})'>増やす</button><button onclick='decrementCounter(${counterId})'>減らす</button><button onclick='resetCounter(${counterId})'>リセット</button><label for='countInput${counterId}'>個数を入力:</label><input type='number' id='countInput${counterId}' /><button onclick='setCount(${counterId})'>セット</button><button onclick="deleteCounter(${counterId})">カウンターを削除</button>`;
-    console.log(counterContainer);
+    const counterContainer = document.createElement('div');
+    counterContainer.className = 'counter';
+    counterContainer.id = `counter-${counterId}`;
+    counterContainer.innerHTML = `<p>${name}</p><p>カウント: <span id='counterValue-${counterId}'>0</span></p><button onclick='incrementCounter(${counterId})'>増やす</button><button onclick='decrementCounter(${counterId})'>減らす</button><button onclick='resetCounter(${counterId})'>リセット</button><label for='countInput${counterId}'>個数を入力:</label><input type='number' id='countInput${counterId}' /><button onclick='setCount(${counterId})'>セット</button><button onclick="deleteCounter(${counterId})">カウンターを削除</button>`;
     return counterContainer;
 }
 
@@ -29,12 +29,12 @@ function deleteCounter(id) {
 }
 
 function setCount(id) {
-    var counterValueElement = document.getElementById(`counterValue-${id}`);
-    var value = document.getElementById(`countInput${id}`).value;
+    const counterValueElement = document.getElementById(`counterValue-${id}`);
+    let value = document.getElementById(`countInput${id}`).value;
     if (value == '') {
         value = 0;
     }
-    counterValueElement.textContent = value;
+    counterValueElement.textContent = parseInt(value, 10);
     document.getElementById(`countInput${id}`).value = ``;
 }
 
@@ -88,12 +88,15 @@ function load() {
         const reader = new FileReader();
         reader.onload = e => {
             const data = JSON.parse(e.target.result);
+            document.getElementById('counters').innerHTML = '';
+            counterId = 0;
             data.forEach(item => {
-                addCounter();
-                counterId = item.id;
-                const counterElement = document.getElementById(`counter-${counterId}`);
-                const nameElement = counterElement.querySelector('p');
-                nameElement.textContent = `${item.name}カウント: `;
+                counterId = Math.max(counterId, item.id);
+                const newCounter = createCounterElement(item.id);
+                const nameElement = newCounter.querySelector('p');
+                nameElement.textContent = item.name;
+                document.getElementById('counters').appendChild(newCounter);
+
 
                 document.getElementById(`counterValue-${counterId}`).textContent = item.value;
             });
