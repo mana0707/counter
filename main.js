@@ -3,8 +3,8 @@ var counterId = 0; // 各カウンターに一意のIDを割り当てるため�
 function createCounterElement(counterId) {
     // カウンター要素を作成
 
-    let name = document.getElementById('countername').value;
-    document.getElementById('countername').value = '';
+    let name = document.getElementById('counter name').value;
+    document.getElementById('counter name').value = '';
 
     var counterContainer = document.createElement('div');
     counterContainer.className = 'counter'; counterContainer.id = `counter-${counterId}`;
