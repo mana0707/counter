@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>カウンター</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2em;
+            margin-top: 20px;
+        }
+
+        .counter {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 20px auto;
+            width: 800px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #0073e6;
+        }
+
+        button {
+            background-color: #0073e6;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background-color: #005bbf;
+        }
+
+        input[type='text'] {
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 1em;
+        }
+
+        /* スマートフォン向けのスタイル */
+        @media (max-width: 600px) {
+            body {
+                background-color: #fff;
+            }
+
+            .counter {
+                width: 90%;
+                box-shadow: none;
+            }
+
+            button {
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>カウンターアプリ</h1>
+    <div id="counters">
+        <!-- カウンターを表示するためのコンテナ -->
+    </div>
+    <p><label for='countername'>名前を入力</label></p>
+    <p><input type='text' id='countername' /></p>
+    <p><button onclick="addCounter()">新しいカウンターを追加</button>
+    </p>
+    <!-- jsonかcsvで保存 -->
+    <p><button onclick="save()">現在の状態をファイルで保存</button></p>
+    <!-- ファイルから復元 -->
+    <p><button onclick="load()">ファイルから復元</button></p>
+
+    <script>
+        var counterId = 0; // 各カウンターに一意のIDを割り当てるための変数
+
+        function createCounterElement(counterId) {
+            // カウンター要素を作成
+
+            name = document.getElementById('countername').value;
+            document.getElementById('countername').value = '';
+
+            var counterContainer = document.createElement('div');
+            counterContainer.className = 'counter'; counterContainer.id = `counter-${counterId}`;
+            counterContainer.innerHTML = `<p>${name}カウント: <span id='counterValue-${counterId}'>0</span></p><button onclick='incrementCounter(${counterId})'>増やす</button><button onclick='decrementCounter(${counterId})'>減らす</button><button onclick='resetCounter(${counterId})'>リセット</button><label for='countInput${counterId}'>個数を入力:</label><input type='number' id='countInput${counterId}' /><button onclick='setCount(${counterId})'>セット</button><button onclick="deleteCounter(${counterId})">カウンターを削除</button>`;
+            console.log(counterContainer);
+            return counterContainer;
+        }
+
+        function addCounter() {
+            counterId++; // 新しいカウンターのために一意のIDを生成
+            var newCounter = createCounterElement(counterId);
+            document.getElementById('counters').appendChild(newCounter);
+        }
+
+        function deleteCounter(id) {
+            const counterElement = document.getElementById(`counter-${id}`);
+            if (counterElement) {
+                counterElement.remove();
+            } else {
+                alert("削除するカウンターがありません。");
+            }
+        }
+
+        function setCount(id) {
+            var counterValueElement = document.getElementById(`counterValue-${id}`);
+            var value = document.getElementById(`countInput${id}`).value;
+            if (value == '') {
+                value = 0;
+            }
+            counterValueElement.textContent = value;
+            document.getElementById(`countInput${id}`).value = ``;
+        }
+
+        function incrementCounter(id) {
+            var counterValueElement = document.getElementById(`counterValue-${id}`);
+            var value = parseInt(counterValueElement.textContent, 10);
+            value++;
+            counterValueElement.textContent = value;
+        }
+
+        function decrementCounter(id) {
+            var counterValueElement = document.getElementById(`counterValue-${id}`);
+            var value = parseInt(counterValueElement.textContent, 10);
+            value--;
+            //-でもカウントし続ける
+            counterValueElement.textContent = value;
+        }
+
+        function resetCounter(id) {
+            var counterValueElement = document.getElementById(`counterValue-${id}`);
+            counterValueElement.textContent = 0;
+        }
+
+        function save() {
+            const counters = document.querySelectorAll('.counter');
+            const data = [];
+
+            counters.forEach(counter => {
+                const id = counter.id.split('-')[1];
+                const name = counter.querySelector('p').textContent.split('カウント:')[0];
+                const value = parseInt(document.getElementById(`counterValue-${id}`).textContent, 10);
+                data.push({ id, name, value });
+            });
+
+            const jsonData = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'counters.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function load() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = event => {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const data = JSON.parse(e.target.result);
+                    data.forEach(item => {
+                        addCounter();
+                        counterId = item.id;
+                        const counterElement = document.getElementById(`counter-${counterId}`);
+                        const nameElement = counterElement.querySelector('p');
+                        nameElement.textContent = `${item.name}カウント: `;
+
+                        document.getElementById(`counterValue-${counterId}`).textContent = item.value;
+                    });
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+    </script>
+</body>
+
+</html>
