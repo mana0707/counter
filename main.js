@@ -1,21 +1,23 @@
 var counterId = 0; // 各カウンターに一意のIDを割り当てるための変数
 
-function createCounterElement(counterId) {
+function createCounterElement(counterId, name = '', value = 0) {
     // カウンター要素を作成
-
-    let name = document.getElementById('counter name').value;
-    document.getElementById('counter name').value = '';
-
     const counterContainer = document.createElement('div');
     counterContainer.className = 'counter';
     counterContainer.id = `counter-${counterId}`;
-    counterContainer.innerHTML = `<p><h2>${name}</h2></p><p>カウント: <span id='counterValue-${counterId}'>0</span></p><button onclick='incrementCounter(${counterId})'>増やす</button><button onclick='decrementCounter(${counterId})'>減らす</button><button onclick='resetCounter(${counterId})'>リセット</button><label for='countInput${counterId}'>個数を入力:</label><input type='number' id='countInput${counterId}' /><button onclick='setCount(${counterId})'>セット</button><button onclick="deleteCounter(${counterId})">カウンターを削除</button>`;
+    counterContainer.dataset.name = name;
+    counterContainer.innerHTML = `<p><h2>${name}</h2></p><p>カウント: <span id='counterValue-${counterId}'>${value}</span></p><button onclick='incrementCounter(${counterId})'>増やす</button><button onclick='decrementCounter(${counterId})'>減らす</button><button onclick='resetCounter(${counterId})'>リセット</button><label for='countInput${counterId}'>個数を入力:</label><input type='number' id='countInput${counterId}' /><button onclick='setCount(${counterId})'>セット</button><button onclick="deleteCounter(${counterId})">カウンターを削除</button>`;
     return counterContainer;
 }
 
 function addCounter() {
     counterId++; // 新しいカウンターのために一意のIDを生成
-    var newCounter = createCounterElement(counterId);
+    let name = document.getElementById('counter name').value;
+    if (name === '') {
+        name = `カウンター${counterId}`;
+    }
+    document.getElementById('counter name').value = '';
+    var newCounter = createCounterElement(counterId, name);
     document.getElementById('counters').appendChild(newCounter);
 }
 
@@ -64,7 +66,7 @@ function save() {
 
     counters.forEach(counter => {
         const id = counter.id.split('-')[1];
-        const name = counter.querySelector('p').textContent.split('カウント:')[0];
+        const name = counter.dataset.name;
         const value = parseInt(document.getElementById(`counterValue-${id}`).textContent, 10);
         data.push({ id, name, value });
     });
@@ -92,13 +94,8 @@ function load() {
             counterId = 0;
             data.forEach(item => {
                 counterId = Math.max(counterId, item.id);
-                const newCounter = createCounterElement(item.id);
-                const nameElement = newCounter.querySelector('p');
-                nameElement.textContent = item.name;
+                const newCounter = createCounterElement(item.id, item.name, item.value);
                 document.getElementById('counters').appendChild(newCounter);
-
-
-                document.getElementById(`counterValue-${counterId}`).textContent = item.value;
             });
         };
         reader.readAsText(file);
