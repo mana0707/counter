@@ -3,7 +3,7 @@ var counterId = 0; // 各カウンターに一意のIDを割り当てるため�
 function createCounterElement(counterId) {
     // カウンター要素を作成
 
-    name = document.getElementById('countername').value;
+    let name = document.getElementById('countername').value;
     document.getElementById('countername').value = '';
 
     var counterContainer = document.createElement('div');
