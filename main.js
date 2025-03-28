@@ -1,12 +1,21 @@
 var counterId = 0; // 各カウンターに一意のIDを割り当てるための変数
 
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function createCounterElement(counterId, name = '', value = 0) {
     // カウンター要素を作成
     const counterContainer = document.createElement('div');
     counterContainer.className = 'counter';
     counterContainer.id = `counter-${counterId}`;
-    counterContainer.dataset.name = name;
-    counterContainer.innerHTML = `<p><h2>${name}</h2></p><p>カウント: <span id='counterValue-${counterId}'>${value}</span></p><button onclick='incrementCounter(${counterId})'>増やす</button><button onclick='decrementCounter(${counterId})'>減らす</button><button onclick='resetCounter(${counterId})'>リセット</button><label for='countInput${counterId}'>個数を入力:</label><input type='number' id='countInput${counterId}' /><button onclick='setCount(${counterId})'>セット</button><button onclick="deleteCounter(${counterId})">カウンターを削除</button>`;
+    counterContainer.dataset.name = escapeHtml(name);
+    counterContainer.innerHTML = `<p><h2>${escapeHtml(name)}</h2></p><p>カウント: <span id='counterValue-${counterId}'>${value}</span></p><button onclick='incrementCounter(${counterId})'>増やす</button><button onclick='decrementCounter(${counterId})'>減らす</button><button onclick='resetCounter(${counterId})'>リセット</button><label for='countInput${counterId}'>個数を入力:</label><input type='number' id='countInput${counterId}' /><button onclick='setCount(${counterId})'>セット</button><button onclick="deleteCounter(${counterId})">カウンターを削除</button>`;
     return counterContainer;
 }
 
