@@ -26,8 +26,9 @@
 
 <a name="使い方"></a>
 
+### windows
+
 1. gitからコピー  
-    windows
 
     ```ps1
     git clone https://github.com/mana0707/counter.git
